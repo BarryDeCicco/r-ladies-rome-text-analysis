@@ -1,0 +1,1722 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="text_analysis_r_ladies_rome_files/libs/clipboard/clipboard.min.js"></script>
+<script src="text_analysis_r_ladies_rome_files/libs/quarto-html/tabby.min.js"></script>
+<script src="text_analysis_r_ladies_rome_files/libs/quarto-html/popper.min.js"></script>
+<script src="text_analysis_r_ladies_rome_files/libs/quarto-html/tippy.umd.min.js"></script>
+<link href="text_analysis_r_ladies_rome_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="text_analysis_r_ladies_rome_files/libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="text_analysis_r_ladies_rome_files/libs/quarto-html/quarto-syntax-highlighting-acf12a64177840b8d86f2d4f01b2e9fb.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.9.37">
+
+  <meta name="author" content="Dariia Mykhailyshyna">
+  <meta name="dcterms.date" content="2026-05-17">
+  <title>From Dictionaries to LLMs</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="text_analysis_r_ladies_rome_files/libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="text_analysis_r_ladies_rome_files/libs/revealjs/dist/reveal.css">
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+      }
+    pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+    div.sourceCode
+      { color: #24292e;  }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #24292e; } /* Normal */
+    code span.al { color: #ff5555; font-weight: bold; } /* Alert */
+    code span.an { color: #6a737d; } /* Annotation */
+    code span.at { color: #d73a49; } /* Attribute */
+    code span.bn { color: #005cc5; } /* BaseN */
+    code span.bu { color: #d73a49; } /* BuiltIn */
+    code span.cf { color: #d73a49; } /* ControlFlow */
+    code span.ch { color: #032f62; } /* Char */
+    code span.cn { color: #005cc5; } /* Constant */
+    code span.co { color: #6a737d; } /* Comment */
+    code span.cv { color: #6a737d; } /* CommentVar */
+    code span.do { color: #6a737d; } /* Documentation */
+    code span.dt { color: #d73a49; } /* DataType */
+    code span.dv { color: #005cc5; } /* DecVal */
+    code span.er { color: #ff5555; text-decoration: underline; } /* Error */
+    code span.ex { color: #d73a49; font-weight: bold; } /* Extension */
+    code span.fl { color: #005cc5; } /* Float */
+    code span.fu { color: #6f42c1; } /* Function */
+    code span.im { color: #032f62; } /* Import */
+    code span.in { color: #6a737d; } /* Information */
+    code span.kw { color: #d73a49; } /* Keyword */
+    code span.op { color: #24292e; } /* Operator */
+    code span.ot { color: #6f42c1; } /* Other */
+    code span.pp { color: #d73a49; } /* Preprocessor */
+    code span.re { color: #6a737d; } /* RegionMarker */
+    code span.sc { color: #005cc5; } /* SpecialChar */
+    code span.ss { color: #032f62; } /* SpecialString */
+    code span.st { color: #032f62; } /* String */
+    code span.va { color: #e36209; } /* Variable */
+    code span.vs { color: #032f62; } /* VerbatimString */
+    code span.wa { color: #ff5555; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="text_analysis_r_ladies_rome_files/libs/revealjs/dist/theme/quarto-efdee58df0f3702e82a67416bf734aa1.css">
+  <link href="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <link href="text_analysis_r_ladies_rome_files/libs/htmltools-fill-0.5.8.1/fill.css" rel="stylesheet">
+
+  <script src="text_analysis_r_ladies_rome_files/libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+
+  <link href="text_analysis_r_ladies_rome_files/libs/wordcloud2-0.0.1/wordcloud.css" rel="stylesheet">
+
+  <script src="text_analysis_r_ladies_rome_files/libs/wordcloud2-0.0.1/wordcloud2-all.js"></script>
+
+  <script src="text_analysis_r_ladies_rome_files/libs/wordcloud2-0.0.1/hover.js"></script>
+
+  <script src="text_analysis_r_ladies_rome_files/libs/wordcloud2-binding-0.2.1/wordcloud2.js"></script>
+
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">From Dictionaries to LLMs</h1>
+  <p class="subtitle">Text Analysis in R</p>
+
+<div class="quarto-title-authors">
+<div class="quarto-title-author">
+<div class="quarto-title-author-name">
+Dariia Mykhailyshyna 
+</div>
+        <p class="quarto-title-affiliation">
+            Kyiv School of Economics · R-Ladies Rome
+          </p>
+    </div>
+</div>
+
+  <p class="date">2026-05-17</p>
+</section>
+<section id="outline" class="slide level2 scrollable">
+<h2>Outline</h2>
+<ol type="1">
+<li>Why text analysis?</li>
+<li>The data: EUvsDisinfo claims</li>
+<li><strong>Part 1</strong> - the tidytext pipeline
+<ul>
+<li>Tokens, stopwords, frequencies</li>
+<li>Dictionary-based sentiment</li>
+<li>Topic modeling (LDA)</li>
+<li>Bigrams and word networks</li>
+</ul></li>
+<li><strong>Part 2</strong> - LLMs for text analysis with <code>mall</code></li>
+<li>Dictionaries vs.&nbsp;LLMs: when to use what?</li>
+</ol>
+</section>
+<section>
+<section id="why-text-analysis" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>Why text analysis?</h1>
+
+</section>
+<section id="a-lot-of-what-we-care-about-is-text" class="slide level2">
+<h2>A lot of what we care about is text</h2>
+<ul>
+<li>Social media posts, news articles, parliamentary speeches</li>
+<li>Open-ended survey responses, customer reviews</li>
+<li>Court rulings, central bank communications, party manifestos</li>
+<li>Misinformation and propaganda</li>
+</ul>
+<div class="fragment">
+<p>We want to <strong>quantify</strong> what is in this text:</p>
+<ul>
+<li>What topics dominate?</li>
+<li>What sentiment is expressed?</li>
+<li>How does this change over time, across speakers, across countries?</li>
+</ul>
+</div>
+</section>
+<section id="two-big-families-of-methods" class="slide level2">
+<h2>Two big families of methods</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Traditional / dictionary-based</strong></p>
+<ul>
+<li>Tokens, counts, dictionaries</li>
+<li>Transparent, fast, cheap</li>
+<li>Easy to audit</li>
+<li>Struggles with sarcasm, negation, context</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>LLM-based</strong></p>
+<ul>
+<li>General-purpose, flexible</li>
+<li>Handles context and nuance</li>
+<li>Slower, more expensive</li>
+<li>A black box - can hallucinate</li>
+</ul>
+</div></div>
+<div class="fragment">
+<p>Today: both, on the <strong>same dataset</strong>, so you can see what each gives you.</p>
+</div>
+</section>
+<section id="what-you-need-to-follow-along" class="slide level2">
+<h2>What you need to follow along</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(</span>
+<span id="cb1-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tidyverse"</span>, <span class="st">"tidytext"</span>, <span class="st">"stopwords"</span>,</span>
+<span id="cb1-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"wordcloud"</span>, <span class="st">"wordcloud2"</span>, <span class="st">"topicmodels"</span>,</span>
+<span id="cb1-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"igraph"</span>, <span class="st">"ggraph"</span>, <span class="st">"textdata"</span></span>
+<span id="cb1-5"><a href="" aria-hidden="true" tabindex="-1"></a>))</span>
+<span id="cb1-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># For Part 2 (LLMs)</span></span>
+<span id="cb1-8"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">install.packages</span>(<span class="fu">c</span>(<span class="st">"mall"</span>, <span class="st">"ollamar"</span>))</span>
+<span id="cb1-9"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># And install Ollama: https://ollama.com/download</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Assumed: working knowledge of R and the tidyverse.</p>
+</section></section>
+<section>
+<section id="the-data" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>The data</h1>
+
+</section>
+<section id="euvsdisinfo" class="slide level2">
+<h2>EUvsDisinfo</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li>Project tracking pro-Russian misinformation in EU and Eastern Partnership countries</li>
+<li>Each row = one false claim from an article, plus the rebuttal</li>
+<li>January 2015 - January 2020</li>
+<li>~7,000 claims</li>
+<li><a href="https://www.kaggle.com/datasets/corrieaar/disinformation-articles">kaggle.com/datasets/corrieaar/disinformation-articles</a></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><strong>Why this dataset?</strong></p>
+<ul>
+<li>Real, messy text</li>
+<li>Strong sentiment signal</li>
+<li>Clear time dimension</li>
+<li>Topically rich (war, EU, sanctions…)</li>
+</ul>
+</div></div>
+</section>
+<section id="loading-the-data" class="slide level2">
+<h2>Loading the data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data.csv"</span>)</span>
+<span id="cb2-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-3"><a href="" aria-hidden="true" tabindex="-1"></a>articles <span class="sc">|&gt;</span></span>
+<span id="cb2-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(claim_published, claim_reviewed) <span class="sc">|&gt;</span></span>
+<span id="cb2-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">3</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 3 × 2
+  claim_published     claim_reviewed                                            
+  &lt;dttm&gt;              &lt;chr&gt;                                                     
+1 2019-12-13 00:00:00 "Ukraine has put itself in a situation when external forc…
+2 2019-09-26 00:00:00 "Regardless who was behind the recent attack on the Saudi…
+3 2019-09-23 00:00:00 "Pilsudski is a historical figure, who established the fi…</code></pre>
+</div>
+</div>
+</section></section>
+<section>
+<section id="part-1-the-tidytext-pipeline" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>Part 1: the tidytext pipeline</h1>
+
+</section>
+<section id="bag-of-words" class="slide level2">
+<h2>Bag of words</h2>
+<p>The core trick of tidytext:</p>
+<blockquote>
+<p>One token per row.</p>
+</blockquote>
+<p>Once text is in that shape, all your tidyverse muscle memory works: <code>filter</code>, <code>group_by</code>, <code>count</code>, <code>left_join</code>, <code>ggplot</code>.</p>
+<div class="fragment">
+<p>A “token” is usually a word, but can also be a sentence, a bigram, an n-gram…</p>
+</div>
+</section>
+<section id="tokenization-with-unnest_tokens" class="slide level2">
+<h2>Tokenization with <code>unnest_tokens</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_unnested <span class="ot">&lt;-</span> articles <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(word, claim_reviewed, <span class="at">to_lower =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(articles_unnested)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 305848</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_unnested <span class="sc">|&gt;</span> <span class="fu">select</span>(claim_published, word) <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  claim_published     word   
+  &lt;dttm&gt;              &lt;chr&gt;  
+1 2019-12-13 00:00:00 ukraine
+2 2019-12-13 00:00:00 has    
+3 2019-12-13 00:00:00 put    
+4 2019-12-13 00:00:00 itself 
+5 2019-12-13 00:00:00 in     </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>One row per word per claim. We went from a few thousand rows to a few hundred thousand.</p>
+</div>
+</section>
+<section id="stopwords-the-boring-words" class="slide level2">
+<h2>Stopwords: the boring words</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="" aria-hidden="true" tabindex="-1"></a>stop_words <span class="ot">&lt;-</span> <span class="fu">stopwords</span>(<span class="at">language =</span> <span class="st">"en"</span>, <span class="at">source =</span> <span class="st">"marimo"</span>)</span>
+<span id="cb8-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(stop_words, <span class="dv">20</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> [1] "i"          "me"         "myself"     "we"         "ours"      
+ [6] "ourselves"  "you"        "yours"      "yourself"   "yourselves"
+[11] "he"         "him"        "himself"    "she"        "hers"      
+[16] "herself"    "it"         "itself"     "they"       "them"      </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>The <code>stopwords</code> package supports many languages and sources - check the help file before picking one.</p>
+</div>
+</section>
+<section id="removing-stopwords-with-anti_join" class="slide level2">
+<h2>Removing stopwords with <code>anti_join</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="" aria-hidden="true" tabindex="-1"></a>stop_words_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">word =</span> stop_words)</span>
+<span id="cb10-2"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="" aria-hidden="true" tabindex="-1"></a>articles_cleaned <span class="ot">&lt;-</span> articles_unnested <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words_df, <span class="at">by =</span> <span class="st">"word"</span>)</span>
+<span id="cb10-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(articles_unnested) <span class="sc">-</span> <span class="fu">nrow</span>(articles_cleaned)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 133280</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><code>anti_join</code> drops every row in <code>articles_unnested</code> whose <code>word</code> matches one in <code>stop_words_df</code>. Clean and fast.</p>
+</div>
+</section>
+<section id="custom-stopwords" class="slide level2">
+<h2>Custom stopwords</h2>
+<p>Our data is full of country and region names - we want to look at both with and without them.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="" aria-hidden="true" tabindex="-1"></a>stop_words_countries <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb12-2"><a href="" aria-hidden="true" tabindex="-1"></a>  stop_words,</span>
+<span id="cb12-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"europe"</span>, <span class="st">"russia"</span>, <span class="st">"eu"</span>, <span class="st">"russian"</span>, <span class="st">"united"</span>, <span class="st">"states"</span>,</span>
+<span id="cb12-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"american"</span>, <span class="st">"usa"</span>, <span class="st">"syria"</span>, <span class="st">"ukraine"</span>, <span class="st">"kyiv"</span>, <span class="st">"donbass"</span>,</span>
+<span id="cb12-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"crimea"</span>, <span class="st">"belarus"</span>, <span class="st">"poland"</span>, <span class="st">"western"</span>, <span class="st">"us"</span>, <span class="st">"ukrainian"</span>,</span>
+<span id="cb12-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"eastern"</span>, <span class="st">"west"</span>, <span class="st">"donbas"</span>, <span class="st">"moscow"</span>, <span class="st">"european"</span>, <span class="st">"germany"</span>,</span>
+<span id="cb12-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"georgia"</span>, <span class="st">"ukrainians"</span>, <span class="st">"union"</span>, <span class="st">"belarusian"</span></span>
+<span id="cb12-8"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb12-9"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="" aria-hidden="true" tabindex="-1"></a>stop_words_countries_df <span class="ot">&lt;-</span> <span class="fu">tibble</span>(<span class="at">word =</span> stop_words_countries)</span>
+<span id="cb12-11"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="" aria-hidden="true" tabindex="-1"></a>articles_no_countries <span class="ot">&lt;-</span> articles_unnested <span class="sc">|&gt;</span></span>
+<span id="cb12-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">anti_join</span>(stop_words_countries_df, <span class="at">by =</span> <span class="st">"word"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="word-frequencies" class="slide level2">
+<h2>Word frequencies</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="" aria-hidden="true" tabindex="-1"></a>top_words <span class="ot">&lt;-</span> articles_cleaned <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-4"><a href="" aria-hidden="true" tabindex="-1"></a>top_words_no_countries <span class="ot">&lt;-</span> articles_no_countries <span class="sc">|&gt;</span></span>
+<span id="cb13-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb13-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-7"><a href="" aria-hidden="true" tabindex="-1"></a>top_words <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  word          n
+  &lt;chr&gt;     &lt;int&gt;
+1 russia     2799
+2 ukraine    2325
+3 russian    1948
+4 us         1753
+5 ukrainian  1497
+6 nato        953</code></pre>
+</div>
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="" aria-hidden="true" tabindex="-1"></a>top_words_no_countries <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 2
+  word          n
+  &lt;chr&gt;     &lt;int&gt;
+1 nato        953
+2 military    812
+3 war         807
+4 people      694
+5 countries   609
+6 president   602</code></pre>
+</div>
+</div>
+</section>
+<section id="wordcloud-with-country-names" class="slide level2">
+<h2>Wordcloud (with country names)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb17-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">wordcloud</span>(</span>
+<span id="cb17-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">words      =</span> top_words<span class="sc">$</span>word,</span>
+<span id="cb17-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq       =</span> top_words<span class="sc">$</span>n,</span>
+<span id="cb17-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">max.words  =</span> <span class="dv">80</span>,</span>
+<span id="cb17-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">random.order =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb17-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="fu">c</span>(kse_primary, kse_blue, kse_green, kse_red)</span>
+<span id="cb17-8"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-8-1.png" width="960" class="r-stretch"></section>
+<section id="wordcloud-without-country-names" class="slide level2">
+<h2>Wordcloud (without country names)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb18-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">wordcloud</span>(</span>
+<span id="cb18-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">words      =</span> top_words_no_countries<span class="sc">$</span>word,</span>
+<span id="cb18-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">freq       =</span> top_words_no_countries<span class="sc">$</span>n,</span>
+<span id="cb18-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">max.words  =</span> <span class="dv">80</span>,</span>
+<span id="cb18-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">random.order =</span> <span class="cn">FALSE</span>,</span>
+<span id="cb18-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">colors     =</span> <span class="fu">c</span>(kse_primary, kse_blue, kse_green, kse_red)</span>
+<span id="cb18-8"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-9-1.png" width="960" class="r-stretch"></section>
+<section id="wordcloud2---interactive-version" class="slide level2">
+<h2><code>wordcloud2</code> - interactive version</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="" aria-hidden="true" tabindex="-1"></a>top_words_no_countries <span class="sc">|&gt;</span></span>
+<span id="cb19-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(n, <span class="at">n =</span> <span class="dv">150</span>) <span class="sc">|&gt;</span></span>
+<span id="cb19-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">wordcloud2</span>(<span class="at">size =</span> <span class="fl">0.9</span>,</span>
+<span id="cb19-4"><a href="" aria-hidden="true" tabindex="-1"></a>             <span class="at">color =</span> <span class="fu">rep_len</span>(<span class="fu">c</span>(kse_primary, kse_blue, kse_green, kse_red), <span class="dv">150</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display">
+<div class="wordcloud2 html-widget html-fill-item" id="htmlwidget-9e9e8426ecb60f484acf" style="width:960px;height:528px;"></div>
+<script type="application/json" data-for="htmlwidget-9e9e8426ecb60f484acf">{"x":{"word":["nato","military","war","people","countries","president","nbsp","new","country","state","world","government","anti","media","attack","also","forces","elections","political","order","chemical","weapons","part","conflict","soviet","international","sanctions","according","foreign","authorities","can","security","years","coup","2014","now","republic","poroshenko","baltic","army","even","case","use","citizens","czech","region","time","power","washington","white","called","nuclear","evidence","information","used","german","like","law","national","want","russians","border","syrian","fact","moldova","intelligence","british","just","france","take","trump","policy","first","helmets","place","support","become","control","regime","polish","migrants","isis","rights","minister","population","presidential","well","mh17","putin","east","without","economic","preparing","uk","terrorist","way","situation","last","main","skripal","system","since","already","brussels","services","threat","attacks","secret","wants","americans","provocation","former","russia's","territory","trend","made","missile","special","towards","soldiers","armed","nazi","relations","campaign","election","group","turkey","ukraine's","ussr","week's","right","2018","human","troops","help","plan","gas","opposition","civil","money","investigation","terrorists","agreement","parliament","treaty","church","never","protests","member","ministry","public"],"freq":[953,812,807,694,609,602,582,569,513,485,478,434,418,403,400,376,364,363,363,352,347,321,319,307,301,299,298,297,297,296,296,291,290,281,279,274,267,262,260,254,243,237,233,231,231,231,231,228,228,228,226,220,219,218,217,216,216,215,215,215,214,211,208,206,206,202,201,198,196,194,193,191,190,190,189,189,187,187,186,184,183,181,179,178,178,177,177,176,176,175,175,173,173,172,171,171,170,169,169,168,168,167,166,166,166,166,165,164,164,163,163,162,162,162,161,158,158,158,158,157,156,155,154,152,152,152,149,149,148,148,147,145,144,144,143,142,141,141,140,140,139,139,138,138,138,137,137,137,136,135,135],"fontFamily":"Segoe UI","fontWeight":"bold","color":["#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE","#A7C539","#F15B43","#003964","#00BBCE"],"minSize":0,"weightFactor":0.1699895068205666,"backgroundColor":"white","gridSize":0,"minRotation":-0.7853981633974483,"maxRotation":0.7853981633974483,"shuffle":true,"rotateRatio":0.4,"shape":"circle","ellipticity":0.65,"figBase64":null,"hover":null},"evals":[],"jsHooks":{"render":[{"code":"function(el,x){\n                        console.log(123);\n                        if(!iii){\n                          window.location.reload();\n                          iii = False;\n\n                        }\n  }","data":null}]}}</script>
+</div>
+</div>
+<div class="fragment">
+<p>Interactive (hover shows frequency); save with <code>htmlwidgets::saveWidget()</code>.</p>
+</div>
+</section>
+<section id="bar-plot---more-honest" class="slide level2">
+<h2>Bar plot - more honest</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="" aria-hidden="true" tabindex="-1"></a>top_words_no_countries <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(n, <span class="at">n =</span> <span class="dv">15</span>) <span class="sc">|&gt;</span></span>
+<span id="cb20-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(word, n), <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> kse_blue) <span class="sc">+</span></span>
+<span id="cb20-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb20-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb20-7"><a href="" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"Most frequent words (country names removed)"</span>) <span class="sc">+</span></span>
+<span id="cb20-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-11-1.png" width="960" class="r-stretch"><div class="fragment">
+<p>Wordclouds look great. Bar plots actually let people compare frequencies.</p>
+</div>
+</section>
+<section id="sentiment-analysis" class="slide level2">
+<h2>Sentiment analysis</h2>
+<p>A way to put a number on the emotional tone of a text.</p>
+<p>The simplest approach: <strong>dictionary-based</strong>.</p>
+<p>A list of words, each tagged with a sentiment. Join, summarize, plot.</p>
+<p>Three lexicons we’ll use:</p>
+<ul>
+<li><strong>AFINN</strong> - integer score from -5 to +5</li>
+<li><strong>Bing</strong> - binary positive / negative</li>
+<li><strong>NRC</strong> - 8 emotions + positive / negative</li>
+</ul>
+</section>
+<section id="joining-the-dictionaries" class="slide level2">
+<h2>Joining the dictionaries</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="ot">&lt;-</span> articles_no_countries <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"nrc"</span>),   <span class="at">by =</span> <span class="st">"word"</span>) <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">sent_nrc   =</span> sentiment) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"bing"</span>),  <span class="at">by =</span> <span class="st">"word"</span>) <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">sent_bing  =</span> sentiment) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"afinn"</span>), <span class="at">by =</span> <span class="st">"word"</span>) <span class="sc">|&gt;</span> <span class="fu">rename</span>(<span class="at">sent_afinn =</span> value)</span>
+<span id="cb21-5"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-6"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="sc">|&gt;</span></span>
+<span id="cb21-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(word, sent_nrc, sent_bing, sent_afinn) <span class="sc">|&gt;</span></span>
+<span id="cb21-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(sent_afinn)) <span class="sc">|&gt;</span></span>
+<span id="cb21-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 4
+  word      sent_nrc sent_bing sent_afinn
+  &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt;
+1 solve     &lt;NA&gt;     &lt;NA&gt;               1
+2 problems  &lt;NA&gt;     negative          -2
+3 pressure  negative &lt;NA&gt;              -1
+4 supported positive positive           2
+5 pressure  negative &lt;NA&gt;              -1</code></pre>
+</div>
+</div>
+</section>
+<section id="nrc-which-emotions-show-up" class="slide level2">
+<h2>NRC: which emotions show up?</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="sc">|&gt;</span></span>
+<span id="cb23-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(sent_nrc)) <span class="sc">|&gt;</span></span>
+<span id="cb23-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sent_nrc) <span class="sc">|&gt;</span></span>
+<span id="cb23-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">fct_reorder</span>(sent_nrc, n), <span class="at">y =</span> n)) <span class="sc">+</span></span>
+<span id="cb23-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">fill =</span> kse_primary) <span class="sc">+</span></span>
+<span id="cb23-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb23-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Count"</span>,</span>
+<span id="cb23-8"><a href="" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"NRC emotions in the claims"</span>) <span class="sc">+</span></span>
+<span id="cb23-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-13-1.png" width="960" class="r-stretch"></section>
+<section id="bing-same-data-different-story" class="slide level2">
+<h2>Bing: same data, different story</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(sent_bing)) <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sent_bing) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> sent_bing, <span class="at">y =</span> n, <span class="at">fill =</span> sent_bing)) <span class="sc">+</span></span>
+<span id="cb24-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb24-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">negative =</span> kse_red, <span class="at">positive =</span> kse_green)) <span class="sc">+</span></span>
+<span id="cb24-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Count"</span>, <span class="at">title =</span> <span class="st">"Bing sentiment"</span>) <span class="sc">+</span></span>
+<span id="cb24-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-14-1.png" width="960" class="r-stretch"><div class="fragment">
+<p>NRC said: mostly positive. Bing says: mostly negative. <strong>The dictionary matters.</strong></p>
+</div>
+</section>
+<section id="which-words-drive-each-side" class="slide level2">
+<h2>Which words drive each side?</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="sc">|&gt;</span></span>
+<span id="cb25-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(sent_bing)) <span class="sc">|&gt;</span></span>
+<span id="cb25-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(sent_bing, word) <span class="sc">|&gt;</span></span>
+<span id="cb25-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(sent_bing) <span class="sc">|&gt;</span></span>
+<span id="cb25-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(n, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb25-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb25-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x =</span> <span class="fu">reorder_within</span>(word, n, sent_bing), <span class="at">y =</span> n, <span class="at">fill =</span> sent_bing)) <span class="sc">+</span></span>
+<span id="cb25-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb25-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>sent_bing, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb25-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_reordered</span>() <span class="sc">+</span></span>
+<span id="cb25-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(<span class="at">negative =</span> kse_red, <span class="at">positive =</span> kse_green)) <span class="sc">+</span></span>
+<span id="cb25-12"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>() <span class="sc">+</span></span>
+<span id="cb25-13"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb25-14"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-15-1.png" width="1056" class="r-stretch"></section>
+<section id="sentiment-over-time-afinn" class="slide level2">
+<h2>Sentiment over time (AFINN)</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_sent <span class="sc">|&gt;</span></span>
+<span id="cb26-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">month =</span> <span class="fu">floor_date</span>(<span class="fu">as_date</span>(claim_published), <span class="st">"month"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(month) <span class="sc">|&gt;</span></span>
+<span id="cb26-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">mean_sent =</span> <span class="fu">mean</span>(sent_afinn, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb26-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(month, mean_sent)) <span class="sc">+</span></span>
+<span id="cb26-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">color =</span> kse_blue, <span class="at">linewidth =</span> <span class="fl">0.8</span>) <span class="sc">+</span></span>
+<span id="cb26-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"loess"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>, <span class="at">color =</span> kse_red) <span class="sc">+</span></span>
+<span id="cb26-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Mean AFINN score"</span>,</span>
+<span id="cb26-9"><a href="" aria-hidden="true" tabindex="-1"></a>       <span class="at">title =</span> <span class="st">"How negative did the claims get over time?"</span>) <span class="sc">+</span></span>
+<span id="cb26-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-16-1.png" width="960" class="r-stretch"></section>
+<section id="topic-modeling-what-is-this-text-about" class="slide level2">
+<h2>Topic modeling: what is this text <em>about</em>?</h2>
+<ul>
+<li>Unsupervised: no labels needed</li>
+<li><strong>LDA</strong> (Latent Dirichlet Allocation) assumes each document is a mixture of topics, each topic a distribution over words</li>
+<li>We pick the number of topics <span class="math inline">\(k\)</span> in advance</li>
+<li>Reference: Tidy Text Mining, ch.&nbsp;6</li>
+</ul>
+</section>
+<section id="building-a-document-term-matrix" class="slide level2">
+<h2>Building a document-term matrix</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_dtm <span class="ot">&lt;-</span> articles_cleaned <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word, <span class="st">`</span><span class="at">...1</span><span class="st">`</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cast_dtm</span>(<span class="st">`</span><span class="at">...1</span><span class="st">`</span>, word, n)</span>
+<span id="cb27-4"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="" aria-hidden="true" tabindex="-1"></a>articles_dtm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>&lt;&lt;DocumentTermMatrix (documents: 7369, terms: 14304)&gt;&gt;
+Non-/sparse entries: 155885/105250291
+Sparsity           : 100%
+Maximal term length: NA
+Weighting          : term frequency (tf)</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Sparse matrix: most words don’t appear in most documents.</p>
+</div>
+</section>
+<section id="fitting-an-lda-with-k-2" class="slide level2">
+<h2>Fitting an LDA with <code>k = 2</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">16</span>)</span>
+<span id="cb29-2"><a href="" aria-hidden="true" tabindex="-1"></a>lda_model <span class="ot">&lt;-</span> <span class="fu">LDA</span>(</span>
+<span id="cb29-3"><a href="" aria-hidden="true" tabindex="-1"></a>  articles_dtm,</span>
+<span id="cb29-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">k =</span> <span class="dv">2</span>,</span>
+<span id="cb29-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">method  =</span> <span class="st">"Gibbs"</span>,</span>
+<span id="cb29-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="at">control =</span> <span class="fu">list</span>(<span class="at">seed =</span> <span class="dv">16</span>)</span>
+<span id="cb29-7"><a href="" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="pulling-out-per-topic-word-probabilities" class="slide level2">
+<h2>Pulling out per-topic word probabilities</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="" aria-hidden="true" tabindex="-1"></a>topics <span class="ot">&lt;-</span> <span class="fu">tidy</span>(lda_model, <span class="at">matrix =</span> <span class="st">"beta"</span>)</span>
+<span id="cb30-2"><a href="" aria-hidden="true" tabindex="-1"></a>topics <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 3
+  topic term        beta
+  &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;
+1     1 0     0.00000111
+2     2 0     0.0000130 
+3     1 0.05  0.00000111
+4     2 0.05  0.0000247 
+5     1 00    0.00000111</code></pre>
+</div>
+</div>
+<p><code>beta</code> = probability of word given topic.</p>
+</section>
+<section id="top-words-per-topic" class="slide level2">
+<h2>Top words per topic</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="" aria-hidden="true" tabindex="-1"></a>topics <span class="sc">|&gt;</span></span>
+<span id="cb32-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(topic) <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(beta, <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb32-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb32-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">term =</span> <span class="fu">reorder_within</span>(term, beta, topic)) <span class="sc">|&gt;</span></span>
+<span id="cb32-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(beta, term, <span class="at">fill =</span> <span class="fu">factor</span>(topic))) <span class="sc">+</span></span>
+<span id="cb32-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb32-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>topic, <span class="at">scales =</span> <span class="st">"free"</span>) <span class="sc">+</span></span>
+<span id="cb32-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_y_reordered</span>() <span class="sc">+</span></span>
+<span id="cb32-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(kse_blue, kse_red)) <span class="sc">+</span></span>
+<span id="cb32-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-20-1.png" width="1056" class="r-stretch"></section>
+<section id="a-sharper-view-log-ratio-of-betas" class="slide level2">
+<h2>A sharper view: log-ratio of betas</h2>
+<p>Many of those top words show up in <strong>both</strong> topics. Log-ratios highlight what’s <em>distinctive</em>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="" aria-hidden="true" tabindex="-1"></a>beta_wide <span class="ot">&lt;-</span> topics <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">topic =</span> <span class="fu">paste0</span>(<span class="st">"topic"</span>, topic)) <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> topic, <span class="at">values_from =</span> beta) <span class="sc">|&gt;</span></span>
+<span id="cb33-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(topic1 <span class="sc">&gt;</span> .<span class="dv">001</span> <span class="sc">|</span> topic2 <span class="sc">&gt;</span> .<span class="dv">001</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">log_ratio =</span> <span class="fu">log2</span>(topic2 <span class="sc">/</span> topic1))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="log-ratio-plot" class="slide level2">
+<h2>Log-ratio plot</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="" aria-hidden="true" tabindex="-1"></a>beta_wide <span class="sc">|&gt;</span></span>
+<span id="cb34-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(<span class="at">direction =</span> log_ratio <span class="sc">&gt;</span> <span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="fu">abs</span>(log_ratio), <span class="at">n =</span> <span class="dv">10</span>) <span class="sc">|&gt;</span></span>
+<span id="cb34-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb34-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">term =</span> <span class="fu">reorder</span>(term, log_ratio)) <span class="sc">|&gt;</span></span>
+<span id="cb34-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(log_ratio, term, <span class="at">fill =</span> log_ratio <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb34-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb34-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(kse_blue, kse_red)) <span class="sc">+</span></span>
+<span id="cb34-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Log2 ratio (topic 2 / topic 1)"</span>, <span class="at">y =</span> <span class="cn">NULL</span>) <span class="sc">+</span></span>
+<span id="cb34-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-22-1.png" width="960" class="r-stretch"><div class="fragment">
+<p>Topic 1: Europe / EU / West. Topic 2: Syria, war, military.</p>
+</div>
+</section>
+<section id="bigrams-pairs-of-words" class="slide level2">
+<h2>Bigrams: pairs of words</h2>
+<p>So far we’ve thrown away word order. That hides things like:</p>
+<ul>
+<li>“gross domestic product” vs.&nbsp;“gross”</li>
+<li>“<strong>not</strong> good”, “<strong>no</strong> evidence”</li>
+</ul>
+<div class="fragment">
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="" aria-hidden="true" tabindex="-1"></a>articles_bigrams <span class="ot">&lt;-</span> articles <span class="sc">|&gt;</span></span>
+<span id="cb35-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">unnest_tokens</span>(bigram, claim_reviewed, <span class="at">token =</span> <span class="st">"ngrams"</span>, <span class="at">n =</span> <span class="dv">2</span>, <span class="at">to_lower =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb35-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-4"><a href="" aria-hidden="true" tabindex="-1"></a>articles_bigrams <span class="sc">|&gt;</span> <span class="fu">select</span>(bigram) <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 1
+  bigram     
+  &lt;chr&gt;      
+1 ukraine has
+2 has put    
+3 put itself 
+4 itself in  
+5 in a       </code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="filtering-bigram-stopwords" class="slide level2">
+<h2>Filtering bigram stopwords</h2>
+<p>No dictionary of stopword <em>pairs</em>. Split, filter, rejoin.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="" aria-hidden="true" tabindex="-1"></a>bigrams_separated <span class="ot">&lt;-</span> articles_bigrams <span class="sc">|&gt;</span></span>
+<span id="cb37-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">separate</span>(bigram, <span class="fu">c</span>(<span class="st">"word1"</span>, <span class="st">"word2"</span>), <span class="at">sep =</span> <span class="st">" "</span>)</span>
+<span id="cb37-3"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="" aria-hidden="true" tabindex="-1"></a>bigrams_filtered <span class="ot">&lt;-</span> bigrams_separated <span class="sc">|&gt;</span></span>
+<span id="cb37-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="sc">!</span>word1 <span class="sc">%in%</span> stop_words_df<span class="sc">$</span>word,</span>
+<span id="cb37-6"><a href="" aria-hidden="true" tabindex="-1"></a>         <span class="sc">!</span>word2 <span class="sc">%in%</span> stop_words_df<span class="sc">$</span>word)</span>
+<span id="cb37-7"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-8"><a href="" aria-hidden="true" tabindex="-1"></a>bigram_counts <span class="ot">&lt;-</span> bigrams_filtered <span class="sc">|&gt;</span></span>
+<span id="cb37-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word1, word2, <span class="at">sort =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-10"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-11"><a href="" aria-hidden="true" tabindex="-1"></a>bigram_counts <span class="sc">|&gt;</span> <span class="fu">slice_head</span>(<span class="at">n =</span> <span class="dv">6</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 3
+  word1    word2       n
+  &lt;chr&gt;    &lt;chr&gt;   &lt;int&gt;
+1 united   states    286
+2 european union     213
+3 anti     russian   202
+4 white    helmets   185
+5 week's   trend     147
+6 baltic   states    146</code></pre>
+</div>
+</div>
+</section>
+<section id="bigrams-catch-sentiment-mistakes" class="slide level2">
+<h2>Bigrams catch sentiment mistakes</h2>
+<p>Words preceded by “not” usually mean the opposite. Let’s quantify how much that biases our AFINN scores.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="" aria-hidden="true" tabindex="-1"></a>not_words <span class="ot">&lt;-</span> bigrams_separated <span class="sc">|&gt;</span></span>
+<span id="cb39-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(word1 <span class="sc">==</span> <span class="st">"not"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb39-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">inner_join</span>(<span class="fu">get_sentiments</span>(<span class="st">"afinn"</span>), <span class="at">by =</span> <span class="fu">c</span>(<span class="at">word2 =</span> <span class="st">"word"</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb39-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">count</span>(word2, value, <span class="at">sort =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb39-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">contribution =</span> n <span class="sc">*</span> value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</section>
+<section id="not-x-sentiment-contributions" class="slide level2">
+<h2>“not X” sentiment contributions</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="" aria-hidden="true" tabindex="-1"></a>not_words <span class="sc">|&gt;</span></span>
+<span id="cb40-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="fu">abs</span>(contribution), <span class="at">n =</span> <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb40-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">word2 =</span> <span class="fu">reorder</span>(word2, contribution)) <span class="sc">|&gt;</span></span>
+<span id="cb40-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(contribution, word2, <span class="at">fill =</span> contribution <span class="sc">&gt;</span> <span class="dv">0</span>)) <span class="sc">+</span></span>
+<span id="cb40-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_col</span>(<span class="at">show.legend =</span> <span class="cn">FALSE</span>) <span class="sc">+</span></span>
+<span id="cb40-6"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_fill_manual</span>(<span class="at">values =</span> <span class="fu">c</span>(kse_red, kse_green)) <span class="sc">+</span></span>
+<span id="cb40-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="st">"Sentiment × count"</span>, <span class="at">y =</span> <span class="st">'Words after "not"'</span>) <span class="sc">+</span></span>
+<span id="cb40-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_kse</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-26-1.png" width="960" class="r-stretch"><div class="fragment">
+<p>Net bias: 190. Positive number means we over-estimated positivity.</p>
+</div>
+</section>
+<section id="word-networks-with-ggraph" class="slide level2">
+<h2>Word networks with <code>ggraph</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb41"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb41-1"><a href="" aria-hidden="true" tabindex="-1"></a>bigram_graph <span class="ot">&lt;-</span> bigram_counts <span class="sc">|&gt;</span></span>
+<span id="cb41-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(n <span class="sc">&gt;</span> <span class="dv">20</span>) <span class="sc">|&gt;</span></span>
+<span id="cb41-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">graph_from_data_frame</span>()</span>
+<span id="cb41-4"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb41-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">321</span>)</span>
+<span id="cb41-6"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">ggraph</span>(bigram_graph, <span class="at">layout =</span> <span class="st">"fr"</span>) <span class="sc">+</span></span>
+<span id="cb41-7"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_edge_link</span>(<span class="at">alpha =</span> <span class="fl">0.4</span>, <span class="at">arrow =</span> <span class="fu">arrow</span>(<span class="at">length =</span> <span class="fu">unit</span>(<span class="dv">2</span>, <span class="st">"mm"</span>)),</span>
+<span id="cb41-8"><a href="" aria-hidden="true" tabindex="-1"></a>                 <span class="at">end_cap =</span> <span class="fu">circle</span>(<span class="dv">2</span>, <span class="st">"mm"</span>)) <span class="sc">+</span></span>
+<span id="cb41-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_node_point</span>(<span class="at">color =</span> kse_blue, <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb41-10"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_node_text</span>(<span class="fu">aes</span>(<span class="at">label =</span> name), <span class="at">vjust =</span> <span class="dv">1</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="fl">3.5</span>) <span class="sc">+</span></span>
+<span id="cb41-11"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_void</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+
+</div>
+<img data-src="text_analysis_r_ladies_rome_files/figure-revealjs/unnamed-chunk-27-1.png" width="1056" class="r-stretch"></section>
+<section id="part-1-recap" class="slide level2 scrollable">
+<h2>Part 1 recap</h2>
+<p>A complete pipeline, all in tidyverse syntax:</p>
+<ol type="1">
+<li><strong>Tokenize</strong> with <code>unnest_tokens</code></li>
+<li><strong>Clean</strong> with <code>anti_join</code> and stopwords</li>
+<li><strong>Count</strong> to see what’s there</li>
+<li><strong>Visualize</strong> with wordclouds and bar plots</li>
+<li><strong>Score</strong> sentiment by joining dictionaries</li>
+<li><strong>Discover topics</strong> with LDA</li>
+<li><strong>Use bigrams</strong> to catch what single words miss</li>
+</ol>
+<div class="fragment">
+<p>Limitations: no real understanding of meaning. Sarcasm, negation, context all leak through.</p>
+</div>
+</section></section>
+<section>
+<section id="part-2-llms-for-text-analysis" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>Part 2: LLMs for text analysis</h1>
+
+</section>
+<section id="large-language-models-in-60-seconds" class="slide level2">
+<h2>Large language models in 60 seconds</h2>
+<ul>
+<li>Models trained to predict the next token in text, on enormous corpora</li>
+<li>They learn patterns: grammar, common facts, style</li>
+<li>They are very good at <strong>flexible, context-dependent</strong> text tasks</li>
+<li>They are also good at <strong>confidently making things up</strong> (hallucination)</li>
+<li>Examples: GPT, Claude, Gemini, Llama, Mistral, Deepseek…</li>
+</ul>
+</section>
+<section id="cloud-vs.-local" class="slide level2">
+<h2>Cloud vs.&nbsp;local</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Cloud (OpenAI, Anthropic, …)</strong></p>
+<ul>
+<li>Strongest models</li>
+<li>Pay per token</li>
+<li>Data leaves your machine</li>
+<li>API keys, rate limits</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>Local (via Ollama)</strong></p>
+<ul>
+<li>Smaller open models (Llama, Mistral, Qwen)</li>
+<li>Free, unlimited</li>
+<li>Your data stays put</li>
+<li>Slower, weaker, but often “good enough”</li>
+</ul>
+</div></div>
+<div class="fragment">
+<p>Today we’ll use a <strong>local</strong> model so you can replicate at zero cost.</p>
+</div>
+</section>
+<section id="setup-ollama-mall" class="slide level2">
+<h2>Setup: Ollama + <code>mall</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 1. Install Ollama once: https://ollama.com/download</span></span>
+<span id="cb42-2"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 2. Start the Ollama app/server</span></span>
+<span id="cb42-3"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># 3. From R:</span></span>
+<span id="cb42-4"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mall)</span>
+<span id="cb42-5"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ollamar)</span>
+<span id="cb42-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb42-7"><a href="" aria-hidden="true" tabindex="-1"></a>ollamar<span class="sc">::</span><span class="fu">pull</span>(<span class="st">"llama3.2"</span>)   <span class="co"># download the model (~2 GB)</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<div class="fragment">
+<p>That’s the whole infrastructure.</p>
+</div>
+</section>
+<section id="what-mall-gives-you" class="slide level2">
+<h2>What <code>mall</code> gives you</h2>
+<p>A tidy interface for LLM-powered text operations. Every function works on a data frame, takes a text column, returns a new column.</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">Function</th>
+<th style="text-align: left;">What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code>llm_sentiment()</code></td>
+<td style="text-align: left;">Classify sentiment of each row</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>llm_classify()</code></td>
+<td style="text-align: left;">Assign one of your custom labels</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>llm_extract()</code></td>
+<td style="text-align: left;">Pull out structured info (people, products, …)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>llm_summarize()</code></td>
+<td style="text-align: left;">Short summary of each row</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>llm_verify()</code></td>
+<td style="text-align: left;">Yes/no question on each row</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>llm_translate()</code></td>
+<td style="text-align: left;">Translate to another language</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>llm_custom()</code></td>
+<td style="text-align: left;">Your own prompt</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="built-in-reviews-data" class="slide level2">
+<h2>Built-in <code>reviews</code> data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">data</span>(<span class="st">"reviews"</span>)</span>
+<span id="cb43-2"><a href="" aria-hidden="true" tabindex="-1"></a>reviews</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>A messy review (#3) is the interesting test case for any sentiment tool.</p>
+</div>
+</section>
+<section id="sentiment-with-mall" class="slide level2">
+<h2>Sentiment with <code>mall</code></h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span></span>
+<span id="cb45-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_sentiment</span>(review)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+  .sentiment
+1   positive
+2   negative
+3   negative</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Notice review #3: the LLM recognizes mixed feelings. A dictionary would just average the scores.</p>
+</div>
+</section>
+<section id="custom-label-classification" class="slide level2">
+<h2>Custom-label classification</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span></span>
+<span id="cb47-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_classify</span>(review, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"positive"</span>, <span class="st">"negative"</span>, <span class="st">"neutral"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+  .classify
+1  positive
+2  negative
+3   neutral</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="co"># Or use whatever labels are useful for *your* task:</span></span>
+<span id="cb49-2"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span></span>
+<span id="cb49-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_classify</span>(review,</span>
+<span id="cb49-4"><a href="" aria-hidden="true" tabindex="-1"></a>               <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"product complaint"</span>, <span class="st">"shipping complaint"</span>,</span>
+<span id="cb49-5"><a href="" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"praise"</span>, <span class="st">"question"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+          .classify
+1            praise
+2 product complaint
+3          question</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Try writing a dictionary for “shipping complaint”. This is where LLMs earn their keep.</p>
+</div>
+</section>
+<section id="extracting-structured-fields" class="slide level2">
+<h2>Extracting structured fields</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span></span>
+<span id="cb51-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_extract</span>(review, <span class="st">"product"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+         .extract
+1              tv
+2          laptop
+3 washing machine</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>One line, no regex, no NER model. You can also ask for several at once with <code>c("product", "brand", "feature")</code>.</p>
+</div>
+</section>
+<section id="summarize-text" class="slide level2">
+<h2>Summarize text</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span> <span class="fu">llm_summarize</span>(review, <span class="at">max_words =</span> <span class="dv">5</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+                      .summary
+1  i completely agree with you
+2  i regret buying this laptop
+3 confused about new appliance</code></pre>
+</div>
+</div>
+</section>
+<section id="verify-a-yesno-claim" class="slide level2">
+<h2>Verify a yes/no claim</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span> <span class="fu">llm_verify</span>(review, <span class="st">"is the customer happy with the purchase"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+  .verify
+1       1
+2       0
+3       0</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p><code>llm_verify</code> returns 1/0 - perfect for creating regression-ready variables from open-ended text.</p>
+</div>
+</section>
+<section id="translate" class="slide level2">
+<h2>Translate</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb57"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb57-1"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span> <span class="fu">llm_translate</span>(review, <span class="st">"italian"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+                                                                                            .translation
+1                    Questo è stato il mio televisore preferito fino ad ora. Schermo e suono eccellenti.
+2            Mi dispiace aver comprato questo portatile. È troppo lento e la tastiera è troppo rumorosa.
+3 Non sono sicuro di come sentirsi per la mia nuova lavatrice. Colore fantastico, ma difficile da capire</code></pre>
+</div>
+</div>
+</section>
+<section id="custom-prompts" class="slide level2">
+<h2>Custom prompts</h2>
+<p>For anything that doesn’t fit a built-in helper:</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="" aria-hidden="true" tabindex="-1"></a>my_prompt <span class="ot">&lt;-</span> <span class="fu">paste</span>(</span>
+<span id="cb59-2"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Answer a question."</span>,</span>
+<span id="cb59-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Return only the answer, no explanation."</span>,</span>
+<span id="cb59-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Acceptable answers are 'yes', 'no'."</span>,</span>
+<span id="cb59-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Is this customer happy with their purchase?:"</span></span>
+<span id="cb59-6"><a href="" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb59-7"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb59-8"><a href="" aria-hidden="true" tabindex="-1"></a>reviews <span class="sc">|&gt;</span></span>
+<span id="cb59-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_custom</span>(review, my_prompt)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                                                                              review
+1                 This has been the best TV I've ever used. Great screen, and sound.
+2          I regret buying this laptop. It is too slow and the keyboard is too noisy
+3 Not sure how to feel about my new washing machine. Great color, but hard to figure
+  .pred
+1   No.
+2   No.
+3   No.</code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Prompt-engineering tip: be explicit about the <strong>output format</strong> you want. Otherwise you’ll spend the afternoon parsing.</p>
+</div>
+</section>
+<section id="back-to-the-disinformation-data" class="slide level2">
+<h2>Back to the disinformation data</h2>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb61"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a href="" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">1</span>)</span>
+<span id="cb61-2"><a href="" aria-hidden="true" tabindex="-1"></a>claims_sample <span class="ot">&lt;-</span> articles <span class="sc">|&gt;</span></span>
+<span id="cb61-3"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_sample</span>(<span class="at">n =</span> <span class="dv">8</span>) <span class="sc">|&gt;</span></span>
+<span id="cb61-4"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(claim_reviewed) <span class="sc">|&gt;</span></span>
+<span id="cb61-5"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">claim_reviewed =</span> <span class="fu">str_trunc</span>(claim_reviewed, <span class="dv">250</span>))</span>
+<span id="cb61-6"><a href="" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb61-7"><a href="" aria-hidden="true" tabindex="-1"></a>claims_sample <span class="sc">|&gt;</span></span>
+<span id="cb61-8"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_sentiment</span>(claim_reviewed) <span class="sc">|&gt;</span></span>
+<span id="cb61-9"><a href="" aria-hidden="true" tabindex="-1"></a>  <span class="fu">llm_classify</span>(claim_reviewed,</span>
+<span id="cb61-10"><a href="" aria-hidden="true" tabindex="-1"></a>               <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"NATO"</span>, <span class="st">"Ukraine"</span>, <span class="st">"EU"</span>, <span class="st">"Syria"</span>, <span class="st">"other"</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 8 × 3
+  claim_reviewed                                            .sentiment .classify
+  &lt;chr&gt;                                                     &lt;chr&gt;      &lt;chr&gt;    
+1 "American methods are clearly behind the protests agains… negative   other    
+2 "Moscow State University is ranked third in the world, s… positive   other    
+3 "EU is accomplice of the US in the coup d'état in Venezu… negative   other    
+4 "In an article reporting about possible dislodge of the … neutral    other    
+5 "\nFor the anniversary of NATO the foreign ministers of … negative   other    
+6 "Swedish society is willing to watch as their country is… negative   other    
+7 "Negative attitude towards the state will become a crime… negative   other    
+8 "Negotiations in Beslan would have been futile. The terr… negative   other    </code></pre>
+</div>
+</div>
+<div class="fragment">
+<p>Two structured fields from raw text in two lines. (Sample size kept tiny here - local LLM calls take a few seconds each.)</p>
+</div>
+</section>
+<section id="a-reality-check" class="slide level2">
+<h2>A reality check</h2>
+<p>LLMs are not magic. With a local 3B-parameter model expect:</p>
+<ul>
+<li>~70-90% accuracy on simple sentiment, against human labels</li>
+<li>Occasional category that doesn’t match any of your labels</li>
+<li>Made-up entities (“Ministry of Truth”, a country that doesn’t exist)</li>
+<li><strong>Always validate</strong> on a hand-labeled sample</li>
+</ul>
+<div class="fragment">
+<p>The right question is not <em>“does it work?”</em> but <em>“does it work better than my dictionary, for less effort than training a real classifier?”</em></p>
+</div>
+</section></section>
+<section>
+<section id="dictionaries-vs.-llms" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>Dictionaries vs.&nbsp;LLMs</h1>
+
+</section>
+<section id="when-to-reach-for-which" class="slide level2">
+<h2>When to reach for which</h2>
+<div class="columns">
+<div class="column" style="width:50%;">
+<p><strong>Dictionaries / tidytext</strong></p>
+<ul>
+<li>Large corpora, tight budget</li>
+<li>You need full reproducibility</li>
+<li>The task is well-matched to a lexicon</li>
+<li>You need to <strong>defend</strong> every score</li>
+<li>Languages with good resources</li>
+</ul>
+</div><div class="column" style="width:50%;">
+<p><strong>LLMs / <code>mall</code></strong></p>
+<ul>
+<li>Sarcasm, negation, context matter</li>
+<li>Open-ended, ad-hoc questions</li>
+<li>Small or messy samples</li>
+<li>You need to extract custom fields</li>
+<li>Low-resource languages where dictionaries are thin</li>
+</ul>
+</div></div>
+</section>
+<section id="and-often-both" class="slide level2 scrollable">
+<h2>And often: both</h2>
+<p>A common workflow:</p>
+<ol type="1">
+<li><strong>Tidytext</strong> for the cheap, fast overview - what’s there?</li>
+<li><strong>LLM</strong> for the targeted, hard cases - sarcasm, negation, custom labels, entity extraction</li>
+<li><strong>Validate</strong> the LLM with a small dictionary-based or hand-labeled sample</li>
+</ol>
+<div class="fragment">
+<p>The two are complements, not substitutes.</p>
+</div>
+</section></section>
+<section>
+<section id="wrap-up" class="title-slide slide level1 center" data-background-color="#003964">
+<h1>Wrap-up</h1>
+
+</section>
+<section id="resources" class="slide level2">
+<h2>Resources</h2>
+<ul>
+<li><a href="https://www.tidytextmining.com/">Tidy Text Mining with R</a> - Silge &amp; Robinson</li>
+<li><a href="https://juliasilge.github.io/tidytext/"><code>tidytext</code> documentation</a></li>
+<li><a href="https://mlverse.github.io/mall/"><code>mall</code> package</a> - LLM-powered text ops</li>
+<li><a href="https://ollama.com/">Ollama</a> - run local LLMs</li>
+<li><a href="https://ellmer.tidyverse.org/"><code>ellmer</code></a> - if you want fuller control over LLM calls</li>
+<li><a href="https://github.com/EmilHvitfeldt/R-text-data">Datasets for text mining</a></li>
+</ul>
+</section>
+<section id="workshops-for-ukraine" class="slide level2">
+<h2>Workshops for Ukraine</h2>
+<div class="columns">
+<div class="column" style="width:60%;">
+<ul>
+<li>Charity R workshop series</li>
+<li>Registration fees support Ukrainian causes</li>
+<li>Past topics: causal inference, geospatial, Bayesian, ML, …</li>
+<li>Open call for instructors and attendees</li>
+<li><a href="https://sites.google.com/view/dariia-mykhailyshyna/main/r-workshops-for-ukraine">sites.google.com/view/dariia-mykhailyshyna/main/r-workshops-for-ukraine</a></li>
+</ul>
+</div><div class="column" style="width:40%;">
+<p><strong>Grazie, Roma!</strong></p>
+<p><a href="mailto:dmykhailyshyna@kse.org.ua">dmykhailyshyna@kse.org.ua</a></p>
+<p>Slides and code: github.com/dariia-m</p>
+</div></div>
+</section>
+<section class="slide level2">
+
+</section>
+<section id="questions" class="slide level2 center">
+<h2>Questions?</h2>
+<p><strong>Dariia Mykhailyshyna</strong></p>
+<p>Kyiv School of Economics</p>
+<p><a href="mailto:dmykhailyshyna@kse.org.ua">dmykhailyshyna@kse.org.ua</a></p>
+</section>
+</section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<p><img src="logo_primary_color.png" class="slide-logo"></p>
+<div class="footer footer-default">
+<p>R-Ladies Rome · Text Analysis in R</p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/search/search.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="text_analysis_r_ladies_rome_files/libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: 'c/t',
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'fade',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'fade',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+          const outerScaffold = trigger.parentElement.cloneNode(true);
+          const codeEl = outerScaffold.querySelector('code');
+          for (const childEl of codeEl.children) {
+            if (isCodeAnnotation(childEl)) {
+              childEl.remove();
+            }
+          }
+          return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

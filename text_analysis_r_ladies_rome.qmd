@@ -1,0 +1,893 @@
+---
+title: "From Dictionaries to LLMs"
+subtitle: "Text Analysis in R"
+author: "Dariia Mykhailyshyna"
+institute: "Kyiv School of Economics  ·  R-Ladies Rome"
+date: today
+format:
+  revealjs:
+    theme: [default, kse-theme.scss]
+    logo: logo_primary_color.png
+    footer: "R-Ladies Rome  ·  Text Analysis in R"
+    slide-number: c/t
+    transition: fade
+    background-transition: fade
+    highlight-style: github
+    code-line-numbers: false
+    code-overflow: wrap
+    scrollable: true
+    fig-align: center
+    fig-width: 9
+    fig-height: 5
+execute:
+  echo: true
+  warning: false
+  message: false
+  error: true
+---
+
+```{r setup}
+#| include: false
+library(tidyverse)
+library(tidytext)
+library(stopwords)
+library(wordcloud)
+library(wordcloud2)
+library(topicmodels)
+library(igraph)
+library(ggraph)
+library(textdata)
+library(lubridate)
+library(scales)
+library(mall)
+library(ollamar)
+llm_use("ollama", "llama3.2", seed = 42, .silent = TRUE)
+
+kse_primary <- "#003964"
+kse_blue    <- "#00BBCE"
+kse_green   <- "#A7C539"
+kse_red     <- "#F15B43"
+
+theme_kse <- function() {
+  theme_minimal(base_size = 14) +
+    theme(
+      plot.title    = element_text(color = kse_primary, face = "bold"),
+      axis.title    = element_text(color = kse_primary),
+      panel.grid.minor = element_blank()
+    )
+}
+```
+
+## Outline
+
+1. Why text analysis?
+2. The data: EUvsDisinfo claims
+3. **Part 1** - the tidytext pipeline
+   - Tokens, stopwords, frequencies
+   - Dictionary-based sentiment
+   - Topic modeling (LDA)
+   - Bigrams and word networks
+4. **Part 2** - LLMs for text analysis with `mall`
+5. Dictionaries vs. LLMs: when to use what?
+
+# Why text analysis? {background-color="#003964"}
+
+## A lot of what we care about is text
+
+- Social media posts, news articles, parliamentary speeches
+- Open-ended survey responses, customer reviews
+- Court rulings, central bank communications, party manifestos
+- Misinformation and propaganda
+
+. . .
+
+We want to **quantify** what is in this text:
+
+- What topics dominate?
+- What sentiment is expressed?
+- How does this change over time, across speakers, across countries?
+
+## Two big families of methods
+
+::: {.columns}
+::: {.column width="50%"}
+**Traditional / dictionary-based**
+
+- Tokens, counts, dictionaries
+- Transparent, fast, cheap
+- Easy to audit
+- Struggles with sarcasm, negation, context
+:::
+
+::: {.column width="50%"}
+**LLM-based**
+
+- General-purpose, flexible
+- Handles context and nuance
+- Slower, more expensive
+- A black box - can hallucinate
+:::
+:::
+
+. . .
+
+Today: both, on the **same dataset**, so you can see what each gives you.
+
+## What you need to follow along
+
+```{r}
+#| eval: false
+install.packages(c(
+  "tidyverse", "tidytext", "stopwords",
+  "wordcloud", "wordcloud2", "topicmodels",
+  "igraph", "ggraph", "textdata"
+))
+
+# For Part 2 (LLMs)
+install.packages(c("mall", "ollamar"))
+# And install Ollama: https://ollama.com/download
+```
+
+Assumed: working knowledge of R and the tidyverse.
+
+# The data {background-color="#003964"}
+
+## EUvsDisinfo
+
+::: {.columns}
+::: {.column width="60%"}
+- Project tracking pro-Russian misinformation in EU and Eastern Partnership countries
+- Each row = one false claim from an article, plus the rebuttal
+- January 2015 - January 2020
+- ~7,000 claims
+- [kaggle.com/datasets/corrieaar/disinformation-articles](https://www.kaggle.com/datasets/corrieaar/disinformation-articles)
+:::
+
+::: {.column width="40%"}
+**Why this dataset?**
+
+- Real, messy text
+- Strong sentiment signal
+- Clear time dimension
+- Topically rich (war, EU, sanctions...)
+:::
+:::
+
+## Loading the data
+
+```{r}
+articles <- read_csv("data.csv")
+
+articles |>
+  select(claim_published, claim_reviewed) |>
+  slice_head(n = 3)
+```
+
+# Part 1: the tidytext pipeline {background-color="#003964"}
+
+## Bag of words
+
+The core trick of tidytext:
+
+> One token per row.
+
+Once text is in that shape, all your tidyverse muscle memory works:
+`filter`, `group_by`, `count`, `left_join`, `ggplot`.
+
+. . .
+
+A "token" is usually a word, but can also be a sentence, a bigram, an n-gram...
+
+## Tokenization with `unnest_tokens`
+
+```{r}
+articles_unnested <- articles |>
+  unnest_tokens(word, claim_reviewed, to_lower = TRUE)
+
+nrow(articles_unnested)
+articles_unnested |> select(claim_published, word) |> slice_head(n = 5)
+```
+
+. . .
+
+One row per word per claim. We went from a few thousand rows to a few hundred thousand.
+
+## Stopwords: the boring words
+
+```{r}
+stop_words <- stopwords(language = "en", source = "marimo")
+head(stop_words, 20)
+```
+
+. . .
+
+The `stopwords` package supports many languages and sources - check the help file before picking one.
+
+## Removing stopwords with `anti_join`
+
+```{r}
+stop_words_df <- tibble(word = stop_words)
+
+articles_cleaned <- articles_unnested |>
+  anti_join(stop_words_df, by = "word")
+
+nrow(articles_unnested) - nrow(articles_cleaned)
+```
+
+. . .
+
+`anti_join` drops every row in `articles_unnested` whose `word` matches one in `stop_words_df`. Clean and fast.
+
+## Custom stopwords
+
+Our data is full of country and region names - we want to look at both with and without them.
+
+```{r}
+stop_words_countries <- c(
+  stop_words,
+  "europe", "russia", "eu", "russian", "united", "states",
+  "american", "usa", "syria", "ukraine", "kyiv", "donbass",
+  "crimea", "belarus", "poland", "western", "us", "ukrainian",
+  "eastern", "west", "donbas", "moscow", "european", "germany",
+  "georgia", "ukrainians", "union", "belarusian"
+)
+
+stop_words_countries_df <- tibble(word = stop_words_countries)
+
+articles_no_countries <- articles_unnested |>
+  anti_join(stop_words_countries_df, by = "word")
+```
+
+## Word frequencies
+
+```{r}
+top_words <- articles_cleaned |>
+  count(word, sort = TRUE)
+
+top_words_no_countries <- articles_no_countries |>
+  count(word, sort = TRUE)
+
+top_words |> slice_head(n = 6)
+top_words_no_countries |> slice_head(n = 6)
+```
+
+## Wordcloud (with country names)
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+set.seed(1)
+wordcloud(
+  words      = top_words$word,
+  freq       = top_words$n,
+  max.words  = 80,
+  random.order = FALSE,
+  colors     = c(kse_primary, kse_blue, kse_green, kse_red)
+)
+```
+
+## Wordcloud (without country names)
+
+```{r}
+#| fig-width: 10
+#| fig-height: 6
+set.seed(1)
+wordcloud(
+  words      = top_words_no_countries$word,
+  freq       = top_words_no_countries$n,
+  max.words  = 80,
+  random.order = FALSE,
+  colors     = c(kse_primary, kse_blue, kse_green, kse_red)
+)
+```
+
+## `wordcloud2` - interactive version
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5.5
+top_words_no_countries |>
+  slice_max(n, n = 150) |>
+  wordcloud2(size = 0.9,
+             color = rep_len(c(kse_primary, kse_blue, kse_green, kse_red), 150))
+```
+
+. . .
+
+Interactive (hover shows frequency); save with `htmlwidgets::saveWidget()`.
+
+## Bar plot - more honest
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5.5
+top_words_no_countries |>
+  slice_max(n, n = 15) |>
+  ggplot(aes(x = fct_reorder(word, n), y = n)) +
+  geom_col(fill = kse_blue) +
+  coord_flip() +
+  labs(x = NULL, y = "Count",
+       title = "Most frequent words (country names removed)") +
+  theme_kse()
+```
+
+. . .
+
+Wordclouds look great. Bar plots actually let people compare frequencies.
+
+## Sentiment analysis
+
+A way to put a number on the emotional tone of a text.
+
+The simplest approach: **dictionary-based**.
+
+A list of words, each tagged with a sentiment. Join, summarize, plot.
+
+Three lexicons we'll use:
+
+- **AFINN** - integer score from -5 to +5
+- **Bing** - binary positive / negative
+- **NRC** - 8 emotions + positive / negative
+
+## Joining the dictionaries
+
+```{r}
+articles_sent <- articles_no_countries |>
+  left_join(get_sentiments("nrc"),   by = "word") |> rename(sent_nrc   = sentiment) |>
+  left_join(get_sentiments("bing"),  by = "word") |> rename(sent_bing  = sentiment) |>
+  left_join(get_sentiments("afinn"), by = "word") |> rename(sent_afinn = value)
+
+articles_sent |>
+  select(word, sent_nrc, sent_bing, sent_afinn) |>
+  filter(!is.na(sent_afinn)) |>
+  slice_head(n = 5)
+```
+
+## NRC: which emotions show up?
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5.5
+articles_sent |>
+  filter(!is.na(sent_nrc)) |>
+  count(sent_nrc) |>
+  ggplot(aes(x = fct_reorder(sent_nrc, n), y = n)) +
+  geom_col(fill = kse_primary) +
+  coord_flip() +
+  labs(x = NULL, y = "Count",
+       title = "NRC emotions in the claims") +
+  theme_kse()
+```
+
+## Bing: same data, different story
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+articles_sent |>
+  filter(!is.na(sent_bing)) |>
+  count(sent_bing) |>
+  ggplot(aes(x = sent_bing, y = n, fill = sent_bing)) +
+  geom_col() +
+  scale_fill_manual(values = c(negative = kse_red, positive = kse_green)) +
+  labs(x = NULL, y = "Count", title = "Bing sentiment") +
+  theme_kse() + theme(legend.position = "none")
+```
+
+. . .
+
+NRC said: mostly positive. Bing says: mostly negative. **The dictionary matters.**
+
+## Which words drive each side?
+
+```{r}
+#| fig-width: 11
+#| fig-height: 5.5
+articles_sent |>
+  filter(!is.na(sent_bing)) |>
+  count(sent_bing, word) |>
+  group_by(sent_bing) |>
+  slice_max(n, n = 10) |>
+  ungroup() |>
+  ggplot(aes(x = reorder_within(word, n, sent_bing), y = n, fill = sent_bing)) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~sent_bing, scales = "free") +
+  scale_x_reordered() +
+  scale_fill_manual(values = c(negative = kse_red, positive = kse_green)) +
+  coord_flip() +
+  labs(x = NULL, y = NULL) +
+  theme_kse()
+```
+
+## Sentiment over time (AFINN)
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5
+articles_sent |>
+  mutate(month = floor_date(as_date(claim_published), "month")) |>
+  group_by(month) |>
+  summarise(mean_sent = mean(sent_afinn, na.rm = TRUE)) |>
+  ggplot(aes(month, mean_sent)) +
+  geom_line(color = kse_blue, linewidth = 0.8) +
+  geom_smooth(method = "loess", se = FALSE, color = kse_red) +
+  labs(x = NULL, y = "Mean AFINN score",
+       title = "How negative did the claims get over time?") +
+  theme_kse()
+```
+
+## Topic modeling: what is this text *about*?
+
+- Unsupervised: no labels needed
+- **LDA** (Latent Dirichlet Allocation) assumes each document is a mixture of topics, each topic a distribution over words
+- We pick the number of topics $k$ in advance
+- Reference: Tidy Text Mining, ch. 6
+
+## Building a document-term matrix
+
+```{r}
+articles_dtm <- articles_cleaned |>
+  count(word, `...1`) |>
+  cast_dtm(`...1`, word, n)
+
+articles_dtm
+```
+
+. . .
+
+Sparse matrix: most words don't appear in most documents.
+
+## Fitting an LDA with `k = 2`
+
+```{r}
+#| cache: true
+set.seed(16)
+lda_model <- LDA(
+  articles_dtm,
+  k = 2,
+  method  = "Gibbs",
+  control = list(seed = 16)
+)
+```
+
+## Pulling out per-topic word probabilities
+
+```{r}
+topics <- tidy(lda_model, matrix = "beta")
+topics |> slice_head(n = 5)
+```
+
+`beta` = probability of word given topic.
+
+## Top words per topic
+
+```{r}
+#| fig-width: 11
+#| fig-height: 5.5
+topics |>
+  group_by(topic) |>
+  slice_max(beta, n = 10) |>
+  ungroup() |>
+  mutate(term = reorder_within(term, beta, topic)) |>
+  ggplot(aes(beta, term, fill = factor(topic))) +
+  geom_col(show.legend = FALSE) +
+  facet_wrap(~topic, scales = "free") +
+  scale_y_reordered() +
+  scale_fill_manual(values = c(kse_blue, kse_red)) +
+  theme_kse()
+```
+
+## A sharper view: log-ratio of betas
+
+Many of those top words show up in **both** topics. Log-ratios highlight what's *distinctive*.
+
+```{r}
+beta_wide <- topics |>
+  mutate(topic = paste0("topic", topic)) |>
+  pivot_wider(names_from = topic, values_from = beta) |>
+  filter(topic1 > .001 | topic2 > .001) |>
+  mutate(log_ratio = log2(topic2 / topic1))
+```
+
+## Log-ratio plot
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5.5
+beta_wide |>
+  group_by(direction = log_ratio > 0) |>
+  slice_max(abs(log_ratio), n = 10) |>
+  ungroup() |>
+  mutate(term = reorder(term, log_ratio)) |>
+  ggplot(aes(log_ratio, term, fill = log_ratio > 0)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c(kse_blue, kse_red)) +
+  labs(x = "Log2 ratio (topic 2 / topic 1)", y = NULL) +
+  theme_kse()
+```
+
+. . .
+
+Topic 1: Europe / EU / West. Topic 2: Syria, war, military.
+
+## Bigrams: pairs of words
+
+So far we've thrown away word order. That hides things like:
+
+- "gross domestic product" vs. "gross"
+- "**not** good", "**no** evidence"
+
+. . .
+
+```{r}
+articles_bigrams <- articles |>
+  unnest_tokens(bigram, claim_reviewed, token = "ngrams", n = 2, to_lower = TRUE)
+
+articles_bigrams |> select(bigram) |> slice_head(n = 5)
+```
+
+## Filtering bigram stopwords
+
+No dictionary of stopword *pairs*. Split, filter, rejoin.
+
+```{r}
+bigrams_separated <- articles_bigrams |>
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+bigrams_filtered <- bigrams_separated |>
+  filter(!word1 %in% stop_words_df$word,
+         !word2 %in% stop_words_df$word)
+
+bigram_counts <- bigrams_filtered |>
+  count(word1, word2, sort = TRUE)
+
+bigram_counts |> slice_head(n = 6)
+```
+
+## Bigrams catch sentiment mistakes
+
+Words preceded by "not" usually mean the opposite. Let's quantify how much that biases our AFINN scores.
+
+```{r}
+not_words <- bigrams_separated |>
+  filter(word1 == "not") |>
+  inner_join(get_sentiments("afinn"), by = c(word2 = "word")) |>
+  count(word2, value, sort = TRUE) |>
+  mutate(contribution = n * value)
+```
+
+## "not X" sentiment contributions
+
+```{r}
+#| fig-width: 10
+#| fig-height: 5.5
+not_words |>
+  slice_max(abs(contribution), n = 20) |>
+  mutate(word2 = reorder(word2, contribution)) |>
+  ggplot(aes(contribution, word2, fill = contribution > 0)) +
+  geom_col(show.legend = FALSE) +
+  scale_fill_manual(values = c(kse_red, kse_green)) +
+  labs(x = "Sentiment × count", y = 'Words after "not"') +
+  theme_kse()
+```
+
+. . .
+
+Net bias: `r round(sum(not_words$contribution), 1)`. Positive number means we over-estimated positivity.
+
+## Word networks with `ggraph`
+
+```{r}
+#| fig-width: 11
+#| fig-height: 6
+bigram_graph <- bigram_counts |>
+  filter(n > 20) |>
+  graph_from_data_frame()
+
+set.seed(321)
+ggraph(bigram_graph, layout = "fr") +
+  geom_edge_link(alpha = 0.4, arrow = arrow(length = unit(2, "mm")),
+                 end_cap = circle(2, "mm")) +
+  geom_node_point(color = kse_blue, size = 3) +
+  geom_node_text(aes(label = name), vjust = 1, hjust = 1, size = 3.5) +
+  theme_void()
+```
+
+## Part 1 recap
+
+A complete pipeline, all in tidyverse syntax:
+
+1. **Tokenize** with `unnest_tokens`
+2. **Clean** with `anti_join` and stopwords
+3. **Count** to see what's there
+4. **Visualize** with wordclouds and bar plots
+5. **Score** sentiment by joining dictionaries
+6. **Discover topics** with LDA
+7. **Use bigrams** to catch what single words miss
+
+. . .
+
+Limitations: no real understanding of meaning. Sarcasm, negation, context all leak through.
+
+# Part 2: LLMs for text analysis {background-color="#003964"}
+
+## Large language models in 60 seconds
+
+- Models trained to predict the next token in text, on enormous corpora
+- They learn patterns: grammar, common facts, style
+- They are very good at **flexible, context-dependent** text tasks
+- They are also good at **confidently making things up** (hallucination)
+- Examples: GPT, Claude, Gemini, Llama, Mistral, Deepseek...
+
+## Cloud vs. local
+
+::: {.columns}
+::: {.column width="50%"}
+**Cloud (OpenAI, Anthropic, ...)**
+
+- Strongest models
+- Pay per token
+- Data leaves your machine
+- API keys, rate limits
+:::
+
+::: {.column width="50%"}
+**Local (via Ollama)**
+
+- Smaller open models (Llama, Mistral, Qwen)
+- Free, unlimited
+- Your data stays put
+- Slower, weaker, but often "good enough"
+:::
+:::
+
+. . .
+
+Today we'll use a **local** model so you can replicate at zero cost.
+
+## Setup: Ollama + `mall`
+
+```{r}
+#| eval: false
+# 1. Install Ollama once: https://ollama.com/download
+# 2. Start the Ollama app/server
+# 3. From R:
+library(mall)
+library(ollamar)
+
+ollamar::pull("llama3.2")   # download the model (~2 GB)
+```
+
+. . .
+
+That's the whole infrastructure.
+
+## What `mall` gives you
+
+A tidy interface for LLM-powered text operations. Every function works on a data frame, takes a text column, returns a new column.
+
+| Function | What it does |
+|:---|:---|
+| `llm_sentiment()` | Classify sentiment of each row |
+| `llm_classify()` | Assign one of your custom labels |
+| `llm_extract()`  | Pull out structured info (people, products, ...) |
+| `llm_summarize()` | Short summary of each row |
+| `llm_verify()` | Yes/no question on each row |
+| `llm_translate()` | Translate to another language |
+| `llm_custom()` | Your own prompt |
+
+## Built-in `reviews` data
+
+```{r}
+data("reviews")
+reviews
+```
+
+. . .
+
+A messy review (#3) is the interesting test case for any sentiment tool.
+
+## Sentiment with `mall`
+
+```{r}
+#| cache: true
+reviews |>
+  llm_sentiment(review)
+```
+
+. . .
+
+Notice review #3: the LLM recognizes mixed feelings. A dictionary would just average the scores.
+
+## Custom-label classification
+
+```{r}
+#| cache: true
+reviews |>
+  llm_classify(review, labels = c("positive", "negative", "neutral"))
+```
+
+```{r}
+#| cache: true
+# Or use whatever labels are useful for *your* task:
+reviews |>
+  llm_classify(review,
+               labels = c("product complaint", "shipping complaint",
+                          "praise", "question"))
+```
+
+. . .
+
+Try writing a dictionary for "shipping complaint". This is where LLMs earn their keep.
+
+## Extracting structured fields
+
+```{r}
+#| cache: true
+reviews |>
+  llm_extract(review, "product")
+```
+
+. . .
+
+One line, no regex, no NER model. You can also ask for several at once with `c("product", "brand", "feature")`.
+
+## Summarize text
+
+```{r}
+#| cache: true
+reviews |> llm_summarize(review, max_words = 5)
+```
+
+## Verify a yes/no claim
+
+```{r}
+#| cache: true
+reviews |> llm_verify(review, "is the customer happy with the purchase")
+```
+
+. . .
+
+`llm_verify` returns 1/0 - perfect for creating regression-ready variables from open-ended text.
+
+## Translate
+
+```{r}
+#| cache: true
+reviews |> llm_translate(review, "italian")
+```
+
+## Custom prompts
+
+For anything that doesn't fit a built-in helper:
+
+```{r}
+#| cache: true
+my_prompt <- paste(
+  "Answer a question.",
+  "Return only the answer, no explanation.",
+  "Acceptable answers are 'yes', 'no'.",
+  "Is this customer happy with their purchase?:"
+)
+
+reviews |>
+  llm_custom(review, my_prompt)
+```
+
+. . .
+
+Prompt-engineering tip: be explicit about the **output format** you want. Otherwise you'll spend the afternoon parsing.
+
+## Back to the disinformation data
+
+```{r}
+#| cache: true
+set.seed(1)
+claims_sample <- articles |>
+  slice_sample(n = 8) |>
+  select(claim_reviewed) |>
+  mutate(claim_reviewed = str_trunc(claim_reviewed, 250))
+
+claims_sample |>
+  llm_sentiment(claim_reviewed) |>
+  llm_classify(claim_reviewed,
+               labels = c("NATO", "Ukraine", "EU", "Syria", "other"))
+```
+
+. . .
+
+Two structured fields from raw text in two lines. (Sample size kept tiny here - local LLM calls take a few seconds each.)
+
+## A reality check
+
+LLMs are not magic. With a local 3B-parameter model expect:
+
+- ~70-90% accuracy on simple sentiment, against human labels
+- Occasional category that doesn't match any of your labels
+- Made-up entities ("Ministry of Truth", a country that doesn't exist)
+- **Always validate** on a hand-labeled sample
+
+. . .
+
+The right question is not *"does it work?"* but *"does it work better than my dictionary, for less effort than training a real classifier?"*
+
+# Dictionaries vs. LLMs {background-color="#003964"}
+
+## When to reach for which
+
+::: {.columns}
+::: {.column width="50%"}
+**Dictionaries / tidytext**
+
+- Large corpora, tight budget
+- You need full reproducibility
+- The task is well-matched to a lexicon
+- You need to **defend** every score
+- Languages with good resources
+:::
+
+::: {.column width="50%"}
+**LLMs / `mall`**
+
+- Sarcasm, negation, context matter
+- Open-ended, ad-hoc questions
+- Small or messy samples
+- You need to extract custom fields
+- Low-resource languages where dictionaries are thin
+:::
+:::
+
+## And often: both
+
+A common workflow:
+
+1. **Tidytext** for the cheap, fast overview - what's there?
+2. **LLM** for the targeted, hard cases - sarcasm, negation, custom labels, entity extraction
+3. **Validate** the LLM with a small dictionary-based or hand-labeled sample
+
+. . .
+
+The two are complements, not substitutes.
+
+# Wrap-up {background-color="#003964"}
+
+## Resources
+
+- [Tidy Text Mining with R](https://www.tidytextmining.com/) - Silge & Robinson
+- [`tidytext` documentation](https://juliasilge.github.io/tidytext/)
+- [`mall` package](https://mlverse.github.io/mall/) - LLM-powered text ops
+- [Ollama](https://ollama.com/) - run local LLMs
+- [`ellmer`](https://ellmer.tidyverse.org/) - if you want fuller control over LLM calls
+- [Datasets for text mining](https://github.com/EmilHvitfeldt/R-text-data)
+
+## Workshops for Ukraine
+
+::: {.columns}
+::: {.column width="60%"}
+- Charity R workshop series
+- Registration fees support Ukrainian causes
+- Past topics: causal inference, geospatial, Bayesian, ML, ...
+- Open call for instructors and attendees
+- [sites.google.com/view/dariia-mykhailyshyna/main/r-workshops-for-ukraine](https://sites.google.com/view/dariia-mykhailyshyna/main/r-workshops-for-ukraine)
+:::
+
+::: {.column width="40%"}
+**Grazie, Roma!**
+
+[dmykhailyshyna@kse.org.ua](mailto:dmykhailyshyna@kse.org.ua)
+
+Slides and code: github.com/dariia-m
+:::
+:::
+
+---
+
+::: {.center}
+## Questions? {.center}
+
+**Dariia Mykhailyshyna**
+
+Kyiv School of Economics
+
+[dmykhailyshyna@kse.org.ua](mailto:dmykhailyshyna@kse.org.ua)
+:::

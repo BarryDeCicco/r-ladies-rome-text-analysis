@@ -1,0 +1,15 @@
+# Quarto / knitr cache (regenerated on render)
+*_cache/
+*.rmarkdown
+
+# Quarto build artifacts
+.quarto/
+
+# R session files
+.Rhistory
+.RData
+.Rproj.user/
+
+# OS
+.DS_Store
+Thumbs.db

@@ -1,0 +1,303 @@
+/*-- KSE Kyiv School of Economics - Revealjs Theme --*/
+/*-- Based on official brand guidelines --*/
+
+/*-- scss:defaults --*/
+
+/*-- KSE Brand Colors --*/
+$kse-primary: #003964;
+$kse-blue: #00BBCE;
+$kse-green: #A7C539;
+$kse-red: #F15B43;
+$kse-dark-red: #D33E2C;
+$kse-yellow: #E4E541;
+$kse-white: #FFFFFF;
+
+/*-- Base Theme Variables --*/
+$body-bg: $kse-white;
+$body-color: #333333;
+$link-color: $kse-blue;
+$link-color-hover: darken($kse-blue, 15%);
+$selection-bg: rgba($kse-blue, 0.3);
+$selection-color: $body-color;
+
+/*-- Headings --*/
+$presentation-heading-color: $kse-primary;
+$presentation-heading-font: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+$presentation-heading-font-weight: 600;
+
+/*-- Title Slide --*/
+$presentation-title-slide-text-align: center;
+
+/*-- Code --*/
+$code-color: $kse-primary;
+$code-bg: #f5f5f5;
+
+/*-- scss:rules --*/
+
+/*-- Font Import --*/
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+/*-- Base Styles --*/
+.reveal {
+  font-family: 'Source Sans Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 32px;
+}
+
+/*-- Headings --*/
+.reveal h1,
+.reveal h2,
+.reveal h3,
+.reveal h4 {
+  color: $kse-primary;
+  font-weight: 600;
+}
+
+.reveal h1 {
+  font-size: 2em;
+}
+
+.reveal h2 {
+  font-size: 1.5em;
+  border-bottom: 3px solid $kse-blue;
+  padding-bottom: 0.3em;
+  margin-bottom: 0.8em;
+}
+
+/*-- Title Slide --*/
+.reveal .slide.title-slide {
+  text-align: center;
+}
+
+.reveal .slide.title-slide h1 {
+  border-bottom: none;
+}
+
+.reveal .title {
+  color: $kse-primary;
+  font-size: 1.8em;
+  font-weight: 700;
+}
+
+.reveal .subtitle {
+  color: lighten($kse-primary, 20%);
+  font-size: 1.2em;
+  margin-top: 0.5em;
+}
+
+.reveal .author {
+  color: $kse-primary;
+  font-size: 1em;
+  margin-top: 1.5em;
+}
+
+.reveal .institute {
+  color: lighten($kse-primary, 30%);
+  font-size: 0.9em;
+}
+
+.reveal .date {
+  color: lighten($kse-primary, 40%);
+  font-size: 0.8em;
+  margin-top: 1em;
+}
+
+/*-- Section Headers (dark background slides) --*/
+.reveal section[data-background-color="#003964"] h1,
+.reveal section[data-background-color="#003964"] h2 {
+  color: $kse-white;
+  border-bottom-color: $kse-blue;
+}
+
+.reveal section[data-background-color="#003964"] {
+  color: $kse-white;
+}
+
+/*-- Links --*/
+.reveal a {
+  color: $kse-blue;
+  text-decoration: none;
+}
+
+.reveal a:hover {
+  color: darken($kse-blue, 15%);
+  text-decoration: underline;
+}
+
+/*-- Lists --*/
+.reveal ul,
+.reveal ol {
+  margin-left: 1em;
+}
+
+.reveal li {
+  margin-bottom: 0.5em;
+}
+
+.reveal ul ul,
+.reveal ol ol {
+  color: lighten($body-color, 20%);
+  font-size: 0.9em;
+}
+
+/*-- Bullet Colors --*/
+.reveal ul li::marker {
+  color: $kse-primary;
+}
+
+.reveal ul ul li::marker {
+  color: $kse-blue;
+}
+
+.reveal ul ul ul li::marker {
+  color: $kse-green;
+}
+
+/*-- Tables --*/
+.reveal table {
+  font-size: 0.7em;
+  border-collapse: collapse;
+  margin: 1em auto;
+}
+
+.reveal table th {
+  background-color: $kse-primary;
+  color: $kse-white;
+  padding: 0.5em 1em;
+  font-weight: 600;
+}
+
+.reveal table td {
+  padding: 0.4em 1em;
+  border-bottom: 1px solid #ddd;
+}
+
+.reveal table.striped tbody tr:nth-child(odd) {
+  background-color: rgba($kse-primary, 0.05);
+}
+
+/*-- Callout Boxes --*/
+.reveal .callout {
+  border-radius: 4px;
+  padding: 1em;
+  margin: 1em 0;
+}
+
+.reveal .callout-note {
+  border-left: 4px solid $kse-blue;
+  background-color: rgba($kse-blue, 0.1);
+}
+
+.reveal .callout-note .callout-title {
+  color: $kse-blue;
+}
+
+.reveal .callout-important {
+  border-left: 4px solid $kse-red;
+  background-color: rgba($kse-red, 0.1);
+}
+
+.reveal .callout-important .callout-title {
+  color: $kse-red;
+}
+
+.reveal .callout-tip {
+  border-left: 4px solid $kse-green;
+  background-color: rgba($kse-green, 0.1);
+}
+
+.reveal .callout-tip .callout-title {
+  color: darken($kse-green, 10%);
+}
+
+.reveal .callout-warning {
+  border-left: 4px solid $kse-yellow;
+  background-color: rgba($kse-yellow, 0.15);
+}
+
+/*-- Code Blocks --*/
+.reveal pre {
+  background-color: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  font-size: 0.6em;
+}
+
+.reveal code {
+  color: $kse-primary;
+  background-color: rgba($kse-primary, 0.08);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+/*-- Footer and Slide Numbers --*/
+.reveal .slide-number {
+  color: $kse-primary;
+  font-size: 0.6em;
+}
+
+.reveal .footer {
+  color: lighten($kse-primary, 30%);
+  font-size: 0.5em;
+}
+
+/*-- Logo --*/
+.reveal .slide-logo {
+  max-height: 80px !important;
+}
+
+/*-- Math --*/
+.reveal .MathJax {
+  font-size: 0.9em;
+}
+
+/*-- Columns --*/
+.reveal .columns {
+  display: flex;
+  gap: 2em;
+}
+
+/*-- Center Class --*/
+.reveal .center {
+  text-align: center;
+}
+
+/*-- Highlight Classes --*/
+.kse-highlight {
+  color: $kse-blue;
+  font-weight: 600;
+}
+
+.kse-alert {
+  color: $kse-red;
+  font-weight: 600;
+}
+
+.kse-success {
+  color: darken($kse-green, 10%);
+  font-weight: 600;
+}
+
+/*-- Blockquotes --*/
+.reveal blockquote {
+  border-left: 4px solid $kse-blue;
+  padding-left: 1em;
+  font-style: italic;
+  color: lighten($body-color, 20%);
+}
+
+/*-- Horizontal Rules --*/
+.reveal hr {
+  border: none;
+  border-top: 2px solid $kse-blue;
+  margin: 1.5em 0;
+}
+
+/*-- Progress Bar --*/
+.reveal .progress {
+  background: rgba($kse-primary, 0.2);
+  height: 4px;
+}
+
+.reveal .progress span {
+  background: $kse-blue;
+}
